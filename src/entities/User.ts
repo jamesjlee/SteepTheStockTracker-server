@@ -6,7 +6,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Watchlist } from './Watchlist';
 
 @ObjectType()
 @Entity()
@@ -25,6 +27,9 @@ export class User extends BaseEntity {
 
   @Column()
   password!: string;
+
+  @OneToMany(() => Watchlist, (watchlist) => watchlist.creator)
+  watchlist: Watchlist[];
 
   @Field(() => String)
   @CreateDateColumn()

@@ -15,9 +15,12 @@ import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
 import { COOKIE_NAME, __prod__ } from './constants';
+import { Stock } from './entities/Stock';
 import { User } from './entities/User';
 import { createUserLoader } from './entities/utils/createUserLoader';
+import { Watchlist } from './entities/Watchlist';
 import { HelloResolver } from './resolvers/hello';
+import { StockResolver } from './resolvers/stock';
 import { UserResolver } from './resolvers/user';
 
 const main = async () => {
@@ -27,8 +30,9 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
-    entities: [User],
+    entities: [User, Stock, Watchlist],
   });
+
   // await conn.runMigrations();
 
   const app = express();
@@ -59,7 +63,7 @@ const main = async () => {
         domain: __prod__ ? '' : undefined,
       },
       saveUninitialized: false,
-      secret: process.env.SESSION_SECRET,
+      secret: process.env.SESSION_SECRET || '',
       resave: false,
     })
   );
@@ -72,7 +76,7 @@ const main = async () => {
         : ApolloServerPluginLandingPageGraphQLPlayground(),
     ],
     schema: await buildSchema({
-      resolvers: [HelloResolver, UserResolver],
+      resolvers: [HelloResolver, UserResolver, StockResolver],
       validate: false,
     }),
     context: ({ req, res }) => ({

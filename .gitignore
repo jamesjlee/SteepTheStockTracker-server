@@ -3,3 +3,7 @@ node_modules
 .env
 .env.production
 yarn.lock
+package-lock.json
+.vscode
+yarn-error.log
+migrations

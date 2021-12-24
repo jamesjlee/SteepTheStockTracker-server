@@ -24,32 +24,32 @@ export class Stock extends BaseEntity {
   id!: number;
 
   @Field()
-  @Column()
+  @Column({ type: 'float' })
   open!: number;
 
   @Field()
-  @Column()
+  @Column({ type: 'float' })
   high!: number;
 
   @Field()
-  @Column()
+  @Column({ type: 'float' })
   low!: number;
 
   @Field()
-  @Column()
+  @Column({ type: 'float' })
   close!: number;
 
   @Field()
-  @Column()
+  @Column({ type: 'float' })
   volume: number;
 
   @Field()
   @Column()
-  adjClose!: number;
-
-  @Field()
-  @Column({ unique: true })
   symbol!: string;
+
+  @Field(() => String)
+  @Column()
+  recordDate!: Date;
 
   @Field(() => String)
   @CreateDateColumn()

@@ -1,5 +1,4 @@
-import { User } from '../entities/User';
-import { MyContext } from '../types';
+import argon2 from 'argon2';
 import {
   Arg,
   Ctx,
@@ -11,21 +10,15 @@ import {
   Resolver,
   Root,
 } from 'type-graphql';
-import argon2 from 'argon2';
-import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
-import { UsernamePasswordInput } from './UsernamePasswordInput';
-import { validateRegister } from '../entities/utils/validateRegister';
-import { sendEmail } from '../entities/utils/sendEmail';
-import { v4 } from 'uuid';
 import { getConnection } from 'typeorm';
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-  @Field()
-  message: string;
-}
+import { v4 } from 'uuid';
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
+import { User } from '../entities/User';
+import { sendEmail } from '../entities/utils/sendEmail';
+import { validateRegister } from '../entities/utils/validateRegister';
+import { MyContext } from '../types';
+import { FieldError } from './FieldError';
+import { UsernamePasswordInput } from './UsernamePasswordInput';
 
 @ObjectType()
 class UserResponse {
