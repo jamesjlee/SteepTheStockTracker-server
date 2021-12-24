@@ -47,7 +47,7 @@ export class Stock extends BaseEntity {
   @Column()
   symbol!: string;
 
-  @Field(() => String)
+  @Field(() => Date)
   @Column()
   recordDate!: Date;
 

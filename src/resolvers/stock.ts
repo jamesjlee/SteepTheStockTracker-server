@@ -9,6 +9,7 @@ import {
 } from 'type-graphql';
 import { Stock } from '../entities/Stock';
 import { FieldError } from './FieldError';
+import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 const moment = require('moment');
 const alpha = require('alphavantage')({ key: process.env.ALPHA_VANTAGE_KEY });
 
@@ -26,8 +27,8 @@ export class StockResolver {
   @Query(() => StocksResponse)
   async stocks(
     @Arg('symbol') symbol: string,
-    @Arg('from', () => String) from: Date,
-    @Arg('to', () => String) to: Date
+    @Arg('from', () => Date) from: Date,
+    @Arg('to', () => Date) to: Date
   ): Promise<StocksResponse> {
     if (!from) {
       return {
@@ -51,35 +52,18 @@ export class StockResolver {
       };
     }
 
+    console.log(from);
     const stocks = await Stock.find({
-      where: { symbol, from: from.toString(), to: to.toString() },
+      where: {
+        symbol,
+        recordDate: Between(
+          moment(from).utc().format('YYYY-MM-DDTHH:mm:ss.SSS'),
+          moment(to).utc().format('YYYY-MM-DDTHH:mm:ss.SSS')
+        ),
+      },
     });
-    if (stocks.length < 1) {
-      // return googleFinance.historical(
-      //   {
-      //     symbol,
-      //     from: from.toString(),
-      //     to: to.toString(),
-      //     period: 'd',
-      //   },
-      //   function (err: string, quotes: Stock[]) {
-      //     if (err) {
-      //       return {
-      //         errors: [
-      //           {
-      //             field: null,
-      //             message: 'error fetching stocks',
-      //           },
-      //         ],
-      //       };
-      //     }
-      //     return { stocks: quotes };
-      //   }
-      // );
-    }
-    // return { stocks: [] };
 
-    return { stocks: [], errors: [] };
+    return { stocks, errors: [] };
   }
 
   @Mutation(() => StocksResponse)
@@ -120,7 +104,7 @@ export class StockResolver {
 
     for (let i = 0; i <= days; i++) {
       let date = addDays(from, i);
-      let recordDate = moment(date).utc().format('YYYY-MM-DDTHH:mm:ss.SSS');
+      let recordDate = moment().utc(date).format('YYYY-MM-DDTHH:mm:ss.SSS');
       const data = await Stock.find({
         where: {
           symbol,
@@ -139,7 +123,6 @@ export class StockResolver {
 
     // if it doesn't already exist in db, then insert
     if (checkObj.notFound) {
-      console.log('not found!!!');
       const result: Stock[] = [];
       const daysBetweenNotFound = daysBetween(
         moment(checkObj.date),
@@ -171,7 +154,6 @@ export class StockResolver {
         };
       } catch (err) {
         if (err) {
-          console.log(err);
           return {
             errors: [
               {
