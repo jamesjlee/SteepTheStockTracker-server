@@ -1,4 +1,3 @@
-import { addDays, daysBetween } from '../entities/utils/dateUtil';
 import {
   Arg,
   Field,
@@ -7,9 +6,10 @@ import {
   Query,
   Resolver,
 } from 'type-graphql';
+import { Between } from 'typeorm';
 import { Stock } from '../entities/Stock';
+import { addDays, daysBetween } from '../entities/utils/dateUtil';
 import { FieldError } from './FieldError';
-import { Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 const moment = require('moment');
 const alpha = require('alphavantage')({ key: process.env.ALPHA_VANTAGE_KEY });
 
@@ -129,7 +129,7 @@ export class StockResolver {
         moment(to.toString())
       );
       try {
-        const dailyData = await alpha.data.daily(symbol, 'compact');
+        const dailyData = await alpha.data.daily(symbol, 'full');
         for (let i = 0; i <= daysBetweenNotFound; i++) {
           let date = addDays(checkObj.date, i);
           const data =
