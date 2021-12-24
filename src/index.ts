@@ -22,6 +22,7 @@ import { Watchlist } from './entities/Watchlist';
 import { HelloResolver } from './resolvers/hello';
 import { StockResolver } from './resolvers/stock';
 import { UserResolver } from './resolvers/user';
+import { WatchlistResolver } from './resolvers/watchlist';
 
 const main = async () => {
   const conn = await createConnection({
@@ -76,7 +77,12 @@ const main = async () => {
         : ApolloServerPluginLandingPageGraphQLPlayground(),
     ],
     schema: await buildSchema({
-      resolvers: [HelloResolver, UserResolver, StockResolver],
+      resolvers: [
+        HelloResolver,
+        UserResolver,
+        StockResolver,
+        WatchlistResolver,
+      ],
       validate: false,
     }),
     context: ({ req, res }) => ({

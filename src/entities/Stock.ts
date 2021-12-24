@@ -47,15 +47,15 @@ export class Stock extends BaseEntity {
   @Column()
   symbol!: string;
 
-  @Field(() => Date)
-  @Column()
+  @Field(() => String)
+  @Column({ type: 'date' })
   recordDate!: Date;
 
   @Field(() => String)
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
   @Field(() => String)
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 }

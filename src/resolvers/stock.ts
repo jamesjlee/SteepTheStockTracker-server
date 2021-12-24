@@ -1,3 +1,4 @@
+import { isAuth } from '../middleware/isAuth';
 import {
   Arg,
   Field,
@@ -5,6 +6,7 @@ import {
   ObjectType,
   Query,
   Resolver,
+  UseMiddleware,
 } from 'type-graphql';
 import { Between } from 'typeorm';
 import { Stock } from '../entities/Stock';
@@ -25,6 +27,7 @@ class StocksResponse {
 @Resolver(Stock)
 export class StockResolver {
   @Query(() => StocksResponse)
+  @UseMiddleware(isAuth)
   async stocks(
     @Arg('symbol') symbol: string,
     @Arg('from', () => Date) from: Date,
@@ -52,13 +55,12 @@ export class StockResolver {
       };
     }
 
-    console.log(from);
     const stocks = await Stock.find({
       where: {
         symbol,
         recordDate: Between(
-          moment(from).utc().format('YYYY-MM-DDTHH:mm:ss.SSS'),
-          moment(to).utc().format('YYYY-MM-DDTHH:mm:ss.SSS')
+          moment(from).utc().format('YYYY-MM-DD'),
+          moment(to).utc().format('YYYY-MM-DD')
         ),
       },
     });
@@ -67,10 +69,11 @@ export class StockResolver {
   }
 
   @Mutation(() => StocksResponse)
+  @UseMiddleware(isAuth)
   async saveStocks(
     @Arg('symbol') symbol: string,
-    @Arg('from', () => String) from: Date,
-    @Arg('to', () => String) to: Date
+    @Arg('from', () => Date) from: Date,
+    @Arg('to', () => Date) to: Date
   ): Promise<StocksResponse> {
     if (!from) {
       return {
@@ -104,14 +107,13 @@ export class StockResolver {
 
     for (let i = 0; i <= days; i++) {
       let date = addDays(from, i);
-      let recordDate = moment().utc(date).format('YYYY-MM-DDTHH:mm:ss.SSS');
+      let recordDate = moment(date).utc().format('YYYY-MM-DD');
       const data = await Stock.find({
         where: {
           symbol,
           recordDate,
         },
       });
-      console.log(recordDate);
       if (data?.length < 1) {
         checkObj = {
           notFound: true,
@@ -137,15 +139,15 @@ export class StockResolver {
           if (data) {
             const stock = Stock.create({
               symbol,
-              recordDate: moment.utc(date),
+              recordDate: moment(date).utc().format('YYYY-MM-DD'),
               open: parseFloat(data['1. open']),
               high: parseFloat(data['2. high']),
               low: parseFloat(data['3. low']),
               close: parseFloat(data['4. close']),
               volume: parseFloat(data['5. volume']),
             });
-            result.unshift(stock);
-            stock.save();
+            const savedStock = await stock.save();
+            result.unshift(savedStock);
           }
         }
         return {

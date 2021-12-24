@@ -21,6 +21,7 @@ export class Watchlist extends BaseEntity {
   @Column({ unique: true })
   name: string;
 
+  @Field(() => [String])
   @Column('text', { array: true })
   items: string[];
 
@@ -33,10 +34,10 @@ export class Watchlist extends BaseEntity {
   creator: User;
 
   @Field(() => String)
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
   @Field(() => String)
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 }
