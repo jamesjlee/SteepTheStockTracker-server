@@ -44,6 +44,15 @@ export class WatchlistResolver {
     return { watchlist };
   }
 
+  @Query(() => WatchlistResponse)
+  @UseMiddleware(isAuth)
+  async getWatchlists(@Ctx() { req }: MyContext): Promise<WatchlistResponse> {
+    const watchlist = await Watchlist.findOne({
+      where: { creatorId: req.session.userId },
+    });
+    return { watchlist };
+  }
+
   @Mutation(() => Watchlist, { nullable: true })
   @UseMiddleware(isAuth)
   async addToWatchlist(
