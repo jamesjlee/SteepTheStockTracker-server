@@ -51,7 +51,7 @@ export class UserResolver {
         errors: [
           {
             field: 'password',
-            message: 'length must be greater than 2',
+            message: 'Length must be greater than 2',
           },
         ],
       };
@@ -63,7 +63,7 @@ export class UserResolver {
         errors: [
           {
             field: 'token',
-            message: 'token expired',
+            message: 'Token expired',
           },
         ],
       };
@@ -75,7 +75,7 @@ export class UserResolver {
         errors: [
           {
             field: 'token',
-            message: 'user no longer exists',
+            message: 'That user no longer exists',
           },
         ],
       };
@@ -163,7 +163,7 @@ export class UserResolver {
           errors: [
             {
               field: 'username',
-              message: 'username has already been taken',
+              message: 'That username has already been taken',
             },
           ],
         };
@@ -191,7 +191,7 @@ export class UserResolver {
         errors: [
           {
             field: 'usernameOrEmail',
-            message: "that username doesn't exist",
+            message: "That username doesn't exist",
           },
         ],
       };
@@ -202,7 +202,7 @@ export class UserResolver {
         errors: [
           {
             field: 'password',
-            message: 'incorrect password',
+            message: 'Incorrect password',
           },
         ],
       };

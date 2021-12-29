@@ -18,7 +18,7 @@ import { isAuth } from '../middleware/isAuth';
 @InputType()
 class WatchlistInput {
   @Field()
-  name: string;
+  id: number;
 
   @Field()
   item: string;
@@ -30,27 +30,33 @@ class WatchlistResponse {
   watchlist?: Watchlist;
 }
 
+@ObjectType()
+class WatchlistsResponse {
+  @Field(() => [Watchlist], { nullable: true })
+  watchlists?: Watchlist[];
+}
+
 @Resolver(Watchlist)
 export class WatchlistResolver {
   @Query(() => WatchlistResponse)
   @UseMiddleware(isAuth)
   async getWatchlist(
-    @Arg('name') name: string,
+    @Arg('id', () => Int!) id: number,
     @Ctx() { req }: MyContext
   ): Promise<WatchlistResponse> {
     const watchlist = await Watchlist.findOne({
-      where: { creatorId: req.session.userId, name },
+      where: { creatorId: req.session.userId, id },
     });
     return { watchlist };
   }
 
-  @Query(() => WatchlistResponse)
+  @Query(() => WatchlistsResponse)
   @UseMiddleware(isAuth)
-  async getWatchlists(@Ctx() { req }: MyContext): Promise<WatchlistResponse> {
-    const watchlist = await Watchlist.findOne({
+  async getWatchlists(@Ctx() { req }: MyContext): Promise<WatchlistsResponse> {
+    const watchlists = await Watchlist.find({
       where: { creatorId: req.session.userId },
     });
-    return { watchlist };
+    return { watchlists };
   }
 
   @Mutation(() => Watchlist, { nullable: true })
@@ -60,7 +66,7 @@ export class WatchlistResolver {
     @Ctx() { req }: MyContext
   ): Promise<Watchlist | null> {
     const watchlist = await Watchlist.findOne({
-      where: { creatorId: req.session.userId, name: input.name },
+      where: { creatorId: req.session.userId, id: input.id },
     });
 
     if (watchlist) {

@@ -65,7 +65,12 @@ export class StockResolver {
       },
     });
 
-    return { stocks, errors: [] };
+    return {
+      stocks: stocks.sort((a, b) =>
+        moment(a.recordDate).diff(moment(b.recordDate))
+      ),
+      errors: [],
+    };
   }
 
   @Mutation(() => StocksResponse)
@@ -150,8 +155,11 @@ export class StockResolver {
             result.unshift(savedStock);
           }
         }
+
         return {
-          stocks: result,
+          stocks: result.sort((a, b) =>
+            moment(a.recordDate).diff(moment(b.recordDate))
+          ),
           errors: [],
         };
       } catch (err) {
