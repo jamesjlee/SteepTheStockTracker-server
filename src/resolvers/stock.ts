@@ -28,6 +28,59 @@ class StocksResponse {
 export class StockResolver {
   @Query(() => StocksResponse)
   @UseMiddleware(isAuth)
+  async getAllStocks(
+    @Arg('symbols', () => [String], { nullable: true })
+    symbols: string[] | undefined,
+    @Arg('from', () => Date) from: Date,
+    @Arg('to', () => Date) to: Date
+  ): Promise<StocksResponse> {
+    if (!from) {
+      return {
+        errors: [
+          {
+            field: 'from',
+            message: 'must be a valid from date',
+          },
+        ],
+      };
+    }
+
+    if (!to) {
+      return {
+        errors: [
+          {
+            field: 'to',
+            message: 'must be a valid to date',
+          },
+        ],
+      };
+    }
+
+    let result = [];
+
+    for (const symbol of symbols!) {
+      const stocks = await Stock.find({
+        where: {
+          symbol: symbol,
+          recordDate: Between(
+            moment(from).utc().format('YYYY-MM-DD'),
+            moment(to).utc().format('YYYY-MM-DD')
+          ),
+        },
+      });
+      result.unshift(...stocks);
+    }
+
+    return {
+      stocks: result.sort((a, b) =>
+        moment(a.recordDate).diff(moment(b.recordDate))
+      ),
+      errors: [],
+    };
+  }
+
+  @Query(() => StocksResponse)
+  @UseMiddleware(isAuth)
   async stocks(
     @Arg('symbol') symbol: string,
     @Arg('from', () => Date) from: Date,
